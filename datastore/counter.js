@@ -17,7 +17,7 @@ const zeroPaddedNumber = (num) => {
   return sprintf('%05d', num);
 };
 
-const readCounter = (callback) => {
+const readCounter = () => {
   const textPath = exports.counterFile;
   //=============below is the nodestyle callback code=============
   // fs.readFile(exports.counterFile, (err, fileData) => {
@@ -31,17 +31,18 @@ const readCounter = (callback) => {
   //return fs.readfileAsync pass in textPath
   //if sucessful, call then() method and pass in Number(fileData)
   //if not, catch()
-  return fs.readFileAsync(textPath)
-    .then(function (fileData) {
-      callback(Number(fileData));
-    })
-    .catch(function (err) {
-      callback(0);
+  return new Promise(function(resolve, reject) {
+    fs.readFile(textPath, function(err, fileData) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(Number(fileData));
+      }
     });
+  });
 };
 
-const writeCounter = (count, callback) => {
-  var counterString = zeroPaddedNumber(count);
+const writeCounter = (count) => {
   const textPath = exports.counterFile;
   //=============below is the nodestyle callback code=============
   // fs.writeFile(exports.counterFile, counterString, (err) => {
@@ -54,13 +55,15 @@ const writeCounter = (count, callback) => {
   //==============below is the Promise code=======================
   //return fs.writeFileAsync promise
   // then callback on the counterString
-  return fs.writeFileAsync(textPath, counterString)
-    .then(function() {
-      callback(counterString);
-    })
-    .catch(function(err) {
-      callback(err);
+  return new Promise(function(resolve, reject) {
+    fs.writeFile(textPath, zeroPaddedNumber(count), function(err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(zeroPaddedNumber(count));
+      }
     });
+  });
 };
 
 // Public API - Fix this function //////////////////////////////////////////////
@@ -70,7 +73,7 @@ const writeCounter = (count, callback) => {
 //   return zeroPaddedNumber(counter);
 // };
 
-exports.getNextUniqueId = (callback) => {
+exports.getNextUniqueId = () => {
   //=============below is the nodestyle callback code=============
   // readCounter(function(err, counterNum) {
   //   if (err) {
@@ -84,27 +87,22 @@ exports.getNextUniqueId = (callback) => {
   //         //zeroPaddedNumber(counterNum+1);
   //         callback(null, counterString);
   //       }
-  //     }); 
+  //     });
   //   }
   // });
   //==============below is the Promise code=======================
-  //return readCounter
-  //.then()
-  //return writeCounter
-  //.then(counterNum+1)
-  //.catch()
-  return readCounter()
-    .then( function (counterNum) {
-      console.log('counterNum is ============>' + counterNum);
-      return writeCounter(counterNum + 1);
-    })
-    .then(function (counterString) {
-      console.log('counterString is ===============>' + counterString);
-      callback(counterString);
-    })
-    .catch(function (err) {
-      callback(null, 0);
-    });
+  return new Promise (function(resolve, reject) {
+    readCounter()
+      .then(function(counterNum) {
+        return writeCounter(counterNum + 1);
+      })
+      .then(function(counterString) {
+        resolve(counterString);
+      })
+      .catch(function(err) {
+        reject(err);
+      });
+  });
 };
 
 

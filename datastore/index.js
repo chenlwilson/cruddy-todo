@@ -3,7 +3,7 @@ const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
 const Promise = require('bluebird');
-const getNextUniqueIdAsync = Promise.promisify(counter.getNextUniqueId);
+const getNextUniqueIdAsync = counter.getNextUniqueId;
 Promise.promisifyAll(fs);
 
 //var items = {};
@@ -30,7 +30,7 @@ exports.create = (text, callback) => {
   //     });
   //   }
   // });
-  
+
   //========================== exports.create Using Promises=========================
   return getNextUniqueIdAsync()
     .then(function (counterString) {
@@ -54,7 +54,7 @@ exports.create = (text, callback) => {
     });
 
   //return counter
-  //.then(callback) 
+  //.then(callback)
   //define the textpath
   //promise the fs.writeFile
   //then callback passing in the text and id
@@ -218,14 +218,14 @@ exports.delete = (id, callback) => {
   //       } else {
   //         callback(null, stats);
   //       }
-  //     });  
+  //     });
   //   }
   // });
-  
+
   //==============below is the Promise code=======================
   //return fs.statAsync promise and pass in textPath
   //if successful return a statsObj,
-  //call the then() method 
+  //call the then() method
   //return the fs.unlinkAsync promise
   //else catch the error
 
